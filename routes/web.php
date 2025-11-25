@@ -11,6 +11,9 @@ Route::get('/', function () {
 Route::get('/dashboard', [FrontendController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
+    Route::get('/list-workers',[FrontendController::class, 'employeelist'])->name('list.works');
+    Route::get('/attendance', [FrontendController::class, 'attendanceList'])->name('attendance.list');
+    Route::get('/list-salary',[FrontendController::class, 'SalaryList'])->name('list.salary');
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

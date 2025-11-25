@@ -32,6 +32,18 @@ class EmployeeList extends Model
         return number_format($this->salary, 2);
     }
 
+    // রিলেশন: এই কর্মচারীর সব বেতন
+    public function salaries()
+    {
+        return $this->hasMany(Salary::class);
+    }
+
+    // সর্বশেষ বেতন (যদি লাগে)
+    public function latestSalary()
+    {
+        return $this->hasOne(Salary::class)->latestOfMany();
+    }
+
     // Scope for active employees
     public function scopeActive($query)
     {

@@ -10,8 +10,8 @@ class Salary extends Model
     use HasFactory;
 
     protected $fillable = [
+        'employee_list_id',
         'employee_name',
-        'user_id',
         'designation',
         'salary_month',
         'basic_salary',
@@ -31,6 +31,12 @@ class Salary extends Model
         'deductions' => 'decimal:2',
         'net_salary' => 'decimal:2',
     ];
+
+    // ✅ এই relationship যোগ করুন
+    public function employeeList()
+    {
+        return $this->belongsTo(EmployeeList::class, 'employee_list_id');
+    }
 
     // নেট বেতন অটোমেটিক ক্যালকুলেট
     protected static function boot()

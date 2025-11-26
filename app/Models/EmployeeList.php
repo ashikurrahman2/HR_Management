@@ -22,11 +22,9 @@ class EmployeeList extends Model
         'salary' => 'decimal:2',
     ];
 
-    // Status constants
     const STATUS_ACTIVE = 'active';
     const STATUS_INACTIVE = 'inactive';
 
-    // Accessor for formatted salary
     public function getFormattedSalaryAttribute(): string
     {
         return number_format($this->salary, 2);
@@ -35,13 +33,13 @@ class EmployeeList extends Model
     // রিলেশন: এই কর্মচারীর সব বেতন
     public function salaries()
     {
-        return $this->hasMany(Salary::class);
+        return $this->hasMany(Salary::class, 'employee_list_id');
     }
 
-    // সর্বশেষ বেতন (যদি লাগে)
+    // সর্বশেষ বেতন
     public function latestSalary()
     {
-        return $this->hasOne(Salary::class)->latestOfMany();
+        return $this->hasOne(Salary::class, 'employee_list_id')->latestOfMany();
     }
 
     // Scope for active employees

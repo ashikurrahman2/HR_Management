@@ -2,8 +2,11 @@
 
 namespace App\Filament\Resources\Salaries\Schemas;
 
+use App\Models\EmployeeList;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
@@ -13,15 +16,26 @@ class SalaryForm
     {
         return $schema
             ->components([
-                TextInput::make('employee_name')
-                    ->label('কর্মচারীর নাম')
+                Select::make('employee_list_id')
+                    ->label('কর্মচারী খুঁজুন (নাম/পদবী)')
+                    ->relationship('employeeList', 'employee_name')
+                    ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->employee_name} - {$record->designation}")
+                    ->searchable()
+                    ->preload()
                     ->required()
-                    ->maxLength(255),
+                    ->live()
+                    ->afterStateUpdated(function ($state, callable $set) {
+                        $employee = EmployeeList::find($state);
+                        if ($employee) {
+                            $set('employee_name', $employee->employee_name);
+                            $set('designation', $employee->designation);
+                            $set('basic_salary', $employee->salary);
+                        }
+                    }),
                 
-                TextInput::make('designation')
-                    ->label('পদবী')
-                    ->required()
-                    ->maxLength(255),
+                // ✅ Hidden ফিল্ড যোগ করুন
+                Hidden::make('employee_name'),
+                Hidden::make('designation'),
                 
                 DatePicker::make('salary_month')
                     ->label('বেতন মাস')
@@ -34,33 +48,38 @@ class SalaryForm
                     ->required()
                     ->numeric()
                     ->prefix('৳')
-                    ->default(0),
+                    ->default(0)
+                    ->live(onBlur: true),
                 
                 TextInput::make('house_rent')
                     ->label('বাড়ি ভাড়া ভাতা')
                     ->numeric()
                     ->prefix('৳')
-                    ->default(0),
+                    ->default(0)
+                    ->live(onBlur: true),
                 
                 TextInput::make('medical_allowance')
                     ->label('চিকিৎসা ভাতা')
                     ->numeric()
                     ->prefix('৳')
-                    ->default(0),
+                    ->default(0)
+                    ->live(onBlur: true),
                 
                 TextInput::make('bonus')
                     ->label('বোনাস')
                     ->numeric()
                     ->prefix('৳')
-                    ->default(0),
+                    ->default(0)
+                    ->live(onBlur: true),
                 
                 TextInput::make('deductions')
                     ->label('মোট কর্তন (ট্যাক্স + অন্যান্য)')
                     ->numeric()
                     ->prefix('৳')
-                    ->default(0),
+                    ->default(0)
+                    ->live(onBlur: true),
                 
-                Placeholder::make('net_salary')
+                Placeholder::make('net_salary_display')
                     ->label('নেট বেতন')
                     ->content(function ($get) {
                         $net = ($get('basic_salary') ?? 0) 
@@ -71,6 +90,6 @@ class SalaryForm
                         return '৳ ' . number_format($net, 2);
                     }),
             ])
-            ->columns(3); // Apply columns to the entire form
+            ->columns(3);
     }
 }
